@@ -46,24 +46,24 @@ export default defineNuxtModule<ModuleOptions>({
 
     addImports([
       {
-        name: 'default',
+        name: 'useHttp',
         as: 'useHttp',
-        from: resolver.resolve('./runtime/index'),
+        from: resolver.resolve('./runtime/exports'),
       },
       {
         name: 'request',
         as: 'request',
-        from: resolver.resolve('./runtime/fetct'),
+        from: resolver.resolve('./runtime/exports'),
       },
       {
         name: 'initAweasomeHttp',
         as: 'initAweasomeHttp',
-        from: resolver.resolve('./runtime/init'),
+        from: resolver.resolve('./runtime/exports'),
       },
       {
         name: 'clearCache',
         as: 'clearCache',
-        from: resolver.resolve('./runtime/clearCache'),
+        from: resolver.resolve('./runtime/exports'),
       }
     ])
 
