@@ -1,4 +1,5 @@
 import { onServerPrefetch, onUnmounted, ref, shallowRef, useId } from 'vue'
+import { useState, clearNuxtState } from '#imports'
 
 import { request } from './fetct'
 
