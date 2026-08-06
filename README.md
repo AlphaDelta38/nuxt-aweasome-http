@@ -1,5 +1,11 @@
 # nuxt-aweasome-http
 
+[![npm version](https://img.shields.io/npm/v/nuxt-aweasome-http.svg?style=flat-square&color=00DC82)](https://www.npmjs.com/package/nuxt-aweasome-http)
+[![npm downloads](https://img.shields.io/npm/dm/nuxt-aweasome-http.svg?style=flat-square&color=00DC82)](https://www.npmjs.com/package/nuxt-aweasome-http)
+[![npm total downloads](https://img.shields.io/npm/dt/nuxt-aweasome-http.svg?style=flat-square&color=00DC82)](https://www.npmjs.com/package/nuxt-aweasome-http)
+[![license](https://img.shields.io/npm/l/nuxt-aweasome-http.svg?style=flat-square&color=00DC82)](https://github.com/AlphaDelta38/nuxt-aweasome-http/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/AlphaDelta38/nuxt-aweasome-http?style=flat-square&color=00DC82)](https://github.com/AlphaDelta38/nuxt-aweasome-http)
+
 Vue 3 / Nuxt composable for typed HTTP requests with SSR support, IndexedDB caching, smart loading, and global interceptors.
 
 ## Features
