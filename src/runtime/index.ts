@@ -57,7 +57,7 @@ const useAweasomeHttp = <T extends ConventionEndpoint>(
   )
 
   const initialize = async (): Promise<void> => {
-    if (!isServer && cache && !ssr) {
+    if (!isServer && cache) {
       const cachedData = await getCache(url, {params: initOptions?.params, query: initOptions?.query })
       isCacheLoading.value = false
       if (cachedData != null ) {
