@@ -5,6 +5,35 @@
   "license": "MIT",
   "type": "module",
   "private": false,
+  "keywords": [
+    "nuxt",
+    "nuxt3",
+    "nuxt-module",
+    "http",
+    "fetch",
+    "api",
+    "composable",
+    "vue",
+    "vue3",
+    "typescript",
+    "ssr",
+    "caching",
+    "indexeddb",
+    "interceptors",
+    "auto-complete",
+    "typed-fetch",
+    "conventions",
+    "reactive",
+    "useFetch"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlphaDelta38/nuxt-aweasome-http.git"
+  },
+  "homepage": "https://github.com/AlphaDelta38/nuxt-aweasome-http#readme",
+  "bugs": {
+    "url": "https://github.com/AlphaDelta38/nuxt-aweasome-http/issues"
+  },
   "main": "./dist/module.mjs",
   "types": "./dist/types.d.ts",
   "exports": {
