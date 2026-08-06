@@ -1,0 +1,5 @@
+export { default as useHttp } from './index'
+export { initAweasomeHttp, request } from './fetct'
+export type * from './types'
+export type * from './utility-types'
+export { clearCache } from './indexDB'

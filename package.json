@@ -1,0 +1,39 @@
+{
+  "name": "nuxt-aweasome-http",
+  "description": "Vue 3 & Nuxt composable for typed HTTP requests with SSR support, IndexedDB caching, and global interceptors.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "private": false,
+  "main": "./dist/module.mjs",
+  "types": "./dist/types.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/module.mjs",
+      "require": "./dist/module.cjs",
+      "types": "./dist/types.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepack": "nuxt-module-build build",
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "release": "npm run prepack && npm publish"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.13.0"
+  },
+  "devDependencies": {
+    "nuxt": "^3.13.0",
+    "vue": "^3.5.40",
+    "vue-router": "^4.4.0",
+    "nuxt-i18n-micro": "latest",
+    "@nuxt/module-builder": "^0.8.3"
+  }
+}
