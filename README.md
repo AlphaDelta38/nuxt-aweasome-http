@@ -167,47 +167,130 @@ async function fetchMyData() {
 
 ## TypeScript & Type Declarations
 
-Because this package is strictly typed, you can get full auto-completion for your API endpoints and responses.
+Because this package is strictly typed, you can get full auto-completion for your API endpoints and responses. **You cannot just pass a generic type to `useHttp` or `request`** — the module strictly enforces your URL strings based on a central source of truth!
 
-### 1. Simple Generics (Inline)
-You can simply pass generics to `useHttp`:
+You have two ways to define your API types:
+
+### 1. Auto-Generated Conventions (Recommended)
+
+For mid-to-large applications, `nuxt-aweasome-http` offers a powerful **auto-generating types system**. Instead of manually typing every request, you define your endpoints once in `*.convention.ts` files. The module will automatically stitch them together into the global scope.
+
+When you use `useHttp` (or the standalone `request` function), your IDE will instantly auto-complete URLs, enforce correct `query`/`params`, and strongly type the `data` response!
+
+#### Configuration
+
+By default, the module looks for files ending in `*.convention.ts` inside the `conventions/` folder at the root of your project, with a depth of `1`. 
+
+You can customize this in your `nuxt.config.ts` to fit your project's architecture (for example, Domain-Driven Design or a deeper nested structure):
 
 ```typescript
-// Define your expected response shape
-interface Todo {
+export default defineNuxtConfig({
+  modules: ['nuxt-aweasome-http'],
+  
+  aweasomeHttp: {
+    // You can disable auto-generation entirely if you prefer manual typings
+    // autoGenerateConventions: false,
+
+    // Example 1: Classic Structure
+    // Will search in /conventions/*.convention.ts
+    conventionsDir: 'conventions', 
+    conventionsDepth: 1,
+    
+    // Example 2: Domain-Driven Design (DDD)
+    // Will search up to 3 levels deep: /domains/users/api/users.convention.ts
+    // conventionsDir: 'domains',
+    // conventionsDepth: 3,
+  }
+})
+```
+
+#### Writing a Convention File
+
+Inside any `*.convention.ts` file, simply **default export** an interface containing your endpoints. 
+
+Here is an example structure:
+
+```text
+📦 my-nuxt-app
+ ┣ 📂 domains
+ ┃ ┗ 📂 users
+ ┃   ┗ 📂 api
+ ┃     ┗ 📜 users.convention.ts   <-- Your convention file
+ ┣ 📜 nuxt.config.ts
+```
+
+```typescript
+// domains/users/api/users.convention.ts
+
+export interface User {
+  id: number
+  name: string
+  email: string
+}
+
+// MUST be exported as default!
+export default interface UserEndpoints {
+  // Pattern: "METHOD: URL"
+  'GET: https://api.example.com/users': {
+    query: { _limit?: number, _sort?: string }
+    data: User[]
+  }
+  
+  // Dynamic parameters are supported (e.g. :id)
+  'GET: https://api.example.com/users/:id': {
+    query: {} // Explicitly require no query params
+    data: User
+  }
+  
+  'POST: https://api.example.com/users': {
+    query: {}
+    data: { success: boolean; id: number }
+  }
+}
+```
+
+That's it! When you run `nuxt dev`, the module will automatically inject these types globally.
+
+### 2. Manual Global Declaration (Alternative)
+
+If you don't want to use the auto-generation feature (or if you have a very small app), you can disable it and manually extend the global `Convention` interface.
+
+First, disable auto-generation in your config:
+```typescript
+// nuxt.config.ts
+export default defineNuxtConfig({
+  aweasomeHttp: {
+    autoGenerateConventions: false
+  }
+})
+```
+
+Then, in any `.d.ts` file (e.g., `types/index.d.ts`):
+
+```typescript
+// types/index.d.ts
+export interface Todo {
   userId: number
   id: number
   title: string
   completed: boolean
 }
 
-// Pass it to the composable
-const { data, error } = useHttp<Todo[]>('GET: /todos', { ... })
-
-### 2. Global Convention (Strict Typing & Auto-Complete)
-If you want **strict URL validation and auto-complete** across your whole app, you can extend the global `Convention` interface.
-
-Create a `types/index.d.ts` (or any `*.d.ts` file in your project) and add your API endpoints:
-
-```typescript
 declare global {
   interface Convention {
-    'GET: https://jsonplaceholder.typicode.com/todos': {
+    'GET: https://api.example.com/todos': {
       query: { _limit?: number }
       data: Todo[]
     }
-    'GET: https://jsonplaceholder.typicode.com/todos/:id': {
-      query: {}
-      data: Todo
-    }
   }
 }
+
+// Must be a module!
 export {}
 ```
 
-Now, when you type `useHttp('...`, your IDE will **automatically suggest** these URLs and strictly enforce the query parameters and response data!
-
 ### Exported Types
+
 If you are building wrappers around this module, you can import its native type definitions directly:
 
 ```typescript

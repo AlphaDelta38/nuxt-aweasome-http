@@ -182,6 +182,41 @@
 
     <section class="section">
       <h2 class="section-title">
+        <span class="icon">🪄</span> {{ t('typesTitle') }}
+      </h2>
+      <p class="section-desc" style="margin-bottom: 16px;">
+        {{ t('typesDesc') }}
+      </p>
+
+      <div class="code-block">
+        <pre><span class="comment">// domains/users/entities/users.convention.ts</span>
+<span class="keyword">export default interface</span> <span class="type">UserEndpoints</span> {
+  <span class="string">'GET: /users'</span>: {
+    query: { _limit?: <span class="type">number</span> }
+    data: <span class="type">User</span>[]
+  }
+}</pre>
+      </div>
+
+      <div class="info-box tip" style="margin-top: 16px;">
+        <span class="info-box-icon">💡</span>
+        <div class="info-box-content">
+          {{ t('typesNote') }}
+        </div>
+      </div>
+
+      <div class="info-box warning" style="margin-top: 16px;">
+        <span class="info-box-icon">⚠️</span>
+        <div class="info-box-content">
+          {{ t('typesWarning') }}
+        </div>
+      </div>
+    </section>
+
+    <div class="divider" />
+
+    <section class="section">
+      <h2 class="section-title">
         <span class="icon">🎛</span> {{ t('options') }}
       </h2>
 

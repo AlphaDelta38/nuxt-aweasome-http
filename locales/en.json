@@ -53,5 +53,9 @@
   "retCacheDesc": "Whether loading from cache is in progress. Becomes false right after reading from IndexedDB",
   "retFreshDesc": "Whether fresh data is received from server (not from cache)",
   "retErrorDesc": "Request error, if any",
-  "retFetchDesc": "Method for manual call / re-request with new parameters"
+  "retFetchDesc": "Method for manual call / re-request with new parameters",
+  "typesTitle": "Typing & Auto-complete",
+  "typesDesc": "This module automatically stitches your types together! By default, it looks for *.convention.ts files in the conventions/ folder. You can change this in nuxt.config.ts (e.g. for DDD architecture: domains/**/entities/*.convention.ts).",
+  "typesNote": "Just default export an interface in the file, and your IDE will instantly pick up all URLs, query parameters, and response structures for both useHttp and the standalone request function!",
+  "typesWarning": "Important: You cannot pass generic types manually (e.g. useHttp<Todo[]>). The module strictly enforces your URL strings based on your conventions!"
 }

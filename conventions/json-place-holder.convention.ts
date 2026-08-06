@@ -5,7 +5,7 @@ export interface Todo {
   completed: boolean;
 }
 
-export interface TodoConvention {
+export default interface JsonPlaceHolderEndpoints {
   'GET: https://jsonplaceholder.typicode.com/todos': {
     query: { _limit?: number; _start?: number }
     data: Todo[]
@@ -15,3 +15,4 @@ export interface TodoConvention {
     data: Todo
   }
 }
+
