@@ -1,12 +1,16 @@
-name: Publish Package to npm
+name: Publish Package to npm and GitHub
 
 on:
+  push:
+    tags:
+      - 'v*'
   release:
     types: [published]
   workflow_dispatch:
 
 jobs:
-  publish:
+  publish-npm:
+    name: Publish to NPM
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -30,3 +34,36 @@ jobs:
         
       - name: Publish to npm
         run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-github:
+    name: Publish to GitHub Packages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Build module
+        run: npm run prepack
+        
+      - name: Rename for GitHub Packages
+        run: npm pkg set name="@${{ github.repository_owner }}/nuxt-aweasome-http"
+        
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
