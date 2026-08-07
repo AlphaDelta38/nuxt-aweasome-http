@@ -12,7 +12,7 @@ Vue 3 / Nuxt composable for typed HTTP requests with SSR support, IndexedDB cach
 
 ## Features
 
-- 🚀 **SSR Ready**: Automatically fetches data on the server side and hydrates on the client without double-fetching.
+- 🚀 **SSR Ready**: Automatically fetches data on the server side and hydrates on the client without double-fetching. (Hydrated data is automatically saved to local cache for instant future navigations!).
 - 💾 **IndexedDB Cache**: Extremely fast local caching. Instant UI feedback while fetching fresh data in the background (stale-while-revalidate).
 - 😴 **Lazy Loading**: Manual control over when requests are dispatched.
 - 🛠️ **Global Settings & Interceptors**: Modify requests globally, handle auth tokens, or process responses at the core level.
@@ -182,6 +182,23 @@ async function goToPage(page: number) {
 await refetch({
   options: { query: { _start: 20, _limit: 10 } },
 })
+```
+
+### Automatic Request Cancellation
+
+`useHttp` features built-in race-condition protection. If you trigger `fetch()` while a previous request is still pending, the module **automatically aborts the previous request** at the network level using an internal `AbortController`. This saves bandwidth and ensures your `data` and `isLoading` states remain perfectly in sync with the latest request.
+
+If you need to manually cancel a request, you can pass your own `signal`:
+
+```typescript
+const controller = new AbortController()
+
+await refetch({
+  options: { signal: controller.signal }
+})
+
+// Manually abort the request
+controller.abort()
 ```
 
 ## Global Settings & Interceptors

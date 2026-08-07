@@ -148,6 +148,13 @@
           {{ t('delayInfo') }}
         </div>
       </div>
+
+      <div class="info-box tip">
+        <span class="info-box-icon">🛑</span>
+        <div class="info-box-content">
+          {{ t('abortInfo') }}
+        </div>
+      </div>
     </section>
 
     <div class="divider" />

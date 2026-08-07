@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.2.0] - 2026-08-07
+
+### ✨ New Features
+
+- **Built-in Automatic Request Cancellation** — The `useHttp` composable now natively utilizes an internal `AbortController`. If you call `fetch()` or trigger a new request while a previous one is still pending (e.g. rapid pagination), the previous network request is automatically aborted. This saves bandwidth and completely eliminates `isLoading` race conditions.
+- **Custom AbortSignal Support** — You can still pass your own `signal` via `options.signal` in `fetch()`. The module will gracefully respect manual aborts and correctly update the `isLoading` state.
+- **SSR Cache Hydration** — Data fetched on the server (SSR) and hydrated on the client is now **automatically saved to IndexedDB**. This ensures instant "Cache hits" even if the user reloads the page and later navigates back.
+
+### 🐛 Bug Fixes
+
+- **DataCloneError Fix** — Fixed a bug where Vue's reactive Proxy objects (`ref`) were passed to IndexedDB, throwing a `DataCloneError`. The module now correctly strips reactivity using `toRaw()` before saving to the cache.
+- **Hydration Mismatch Fix** — Fixed a hydration mismatch warning related to the `ssrRendered` flag by moving the logic inside the synchronous `effect` callback.
+
+---
+
 ## [1.1.1] - 2026-08-07
 
 ### 🐛 Bug Fixes

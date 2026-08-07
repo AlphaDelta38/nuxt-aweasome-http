@@ -20,6 +20,7 @@
   "ssrInfo": "SSR (Server-Side Rendering) — data is loaded on the server via onServerPrefetch and hydrated on the client via useState. The user sees content immediately, without skeletons. For the demo — enable SSR and reload the page.",
   "cacheInfo": "Cache (IndexedDB) — on the first request, data is saved in IndexedDB. On remounting, the cache returns data instantly (no skeleton), while fresh data is loaded in the background. Try: enable Cache, wait for load, then click \"Remount\" — data appears instantly.",
   "delayInfo": "Artificial Delay — simulates a slow server response via setTimeout. Increase to 2000–3000ms to see skeletons and compare: with cache data appears instantly, without cache — waits the full delay.",
+  "abortInfo": "Automatic Cancel — if you trigger a new request while a previous one is pending (e.g. fast pagination), the previous network request is automatically aborted (AbortController) to save bandwidth and prevent race conditions.",
   "usage": "Usage",
   "options": "Options",
   "returns": "Return values",
