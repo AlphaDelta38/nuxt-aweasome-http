@@ -1,4 +1,4 @@
-import { onServerPrefetch, onUnmounted, ref, shallowRef, useId } from 'vue'
+import { onServerPrefetch, onUnmounted, ref, shallowRef, toRaw, useId } from 'vue'
 import { useState, clearNuxtState } from '#imports'
 
 import { request } from './fetct'
@@ -56,40 +56,77 @@ const useAweasomeHttp = <T extends ConventionEndpoint>(
     () => null,
   )
 
-  const initialize = async (): Promise<void> => {
+  async function tryGetCache(
+    params?: RequestOptions<T>['params'],
+    query?: RequestOptions<T>['query'],
+  ): Promise<void> {
     if (!isServer && cache) {
-      const cachedData = await getCache(url, {params: initOptions?.params, query: initOptions?.query })
+      const cachedData = await getCache(url, { params, query })
       isCacheLoading.value = false
-      if (cachedData != null ) {
+      if (cachedData != null) {
         data.value = cachedData
         
         effect?.(cachedData, {
           isServer: false,
           cache: true,
-          params: initOptions?.params,
-          query: initOptions?.query,
+          params,
+          query,
         })
       }
     }
-  
+  }
+
+  const initialize = async (): Promise<void> => {
+    await tryGetCache(initOptions?.params, initOptions?.query)
     await execute()
   }
 
+  let activeRequestId = 0
+  let internalAbortController: AbortController | null = null
+
   const execute = async (
-    options?: RequestOptions<T>,
+    {
+      useCache,
+      options
+    }: {options?: RequestOptions<T>, useCache?: boolean} = {},
   ): Promise<GetDataFromConvention<T>> => {
+    const currentRequestId = ++activeRequestId
+
+    if (internalAbortController) {
+      internalAbortController.abort()
+    }
+    internalAbortController = new AbortController()
+    
+    const signal = options?.signal ?? internalAbortController.signal
+
     isLoading.value = true
 
     try {
+      const requestParams = options?.params ?? initOptions?.params
+      const requestQuery = options?.query ?? initOptions?.query
+
+      if (useCache) {
+        await tryGetCache(requestParams, requestQuery)
+      }
+
+      const mergedOptions = {
+        ...initOptions,
+        ...options,
+        query: requestQuery,
+        params: requestParams,
+        signal
+      }
+
       const result = await request(
         url,
-        options ?? initOptions,
+        mergedOptions as RequestOptions<T>
       )
 
-      data.value = result
+      if (currentRequestId !== activeRequestId) {
+        return data.value as GetDataFromConvention<T>
+      }
 
-      const requestParams = options?.params ?? initOptions?.params
-      const requestQuery = options?.query ?? initOptions?.query 
+      data.value = result
 
       effect?.(result, {
         cache: false,
@@ -99,16 +136,24 @@ const useAweasomeHttp = <T extends ConventionEndpoint>(
       })
 
       if (cache && !isServer) {
-        void setCache(url, result, {ttl, params: requestParams, query: requestQuery })
+        void setCache(url, toRaw(result), {ttl, params: requestParams, query: requestQuery })
       }
 
       isFreshData.value = true
       return result
-    } catch (requestError) {
-      error.value = requestError
+    } catch (requestError: any) {
+      if (requestError.name === 'AbortError') {
+        return data.value as GetDataFromConvention<T>
+      }
+      
+      if (currentRequestId === activeRequestId) {
+        error.value = requestError
+      }
       throw requestError
     } finally {
-      isLoading.value = false
+      if (currentRequestId === activeRequestId) {
+        isLoading.value = false
+      }
     }
   }
 
@@ -126,6 +171,14 @@ const useAweasomeHttp = <T extends ConventionEndpoint>(
         params: initOptions?.params,
         query: initOptions?.query,
       })
+      
+      if (cache && !isServer) {
+        void setCache(url, toRaw(data.value), { 
+          ttl, 
+          params: initOptions?.params, 
+          query: initOptions?.query 
+        })
+      }
     }
   }
 

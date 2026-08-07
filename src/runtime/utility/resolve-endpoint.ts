@@ -1,4 +1,4 @@
-import { EndpointMethod, EndpointPath, HttpMethod } from "../utility-types"
+import type { EndpointMethod, EndpointPath, HttpMethod } from "../utility-types"
 
 type ResolvedEndpoint<Endpoint extends string> = {
   method: EndpointMethod<Endpoint>

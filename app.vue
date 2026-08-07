@@ -400,8 +400,12 @@ function handleSsrToggle() {
   window.location.href = url.toString()
 }
 
-watch([cacheEnabled, lazyEnabled, currentPage], () => {
+watch([cacheEnabled, lazyEnabled], () => {
   remount()
+  updateUrl()
+})
+
+watch(currentPage, () => {
   updateUrl()
 })
 

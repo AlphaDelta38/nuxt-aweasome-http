@@ -99,6 +99,91 @@ const {
 
 The `componentKey` is generated automatically, so you usually don't need to specify it. However, because `useHttp` uses Nuxt's `useState` for the response data, if you manually provide the *same* `componentKey` to multiple components, they will automatically share the exact same reactive `data`! (Note: Fetching states like `isLoading` and `error` remain local to each individual component).
 
+### The `effect` Callback
+
+The `effect` callback fires every time data arrives — whether from cache or from the network. This is the recommended place to handle side effects (updating external state, tracking metrics, etc.), especially when using cache.
+
+```typescript
+const { data } = useHttp('GET: /api/todos', {
+  cache: true,
+  effect(data, config) {
+    // config.cache — true if data came from IndexedDB, false if from network
+    // config.isServer — true if running on the server (SSR)
+    // config.params — the params used for this request
+    // config.query — the query used for this request
+
+    if (config.cache) {
+      console.log('⚡ Instant cache hit!')
+    } else {
+      console.log('🌐 Fresh data from network')
+    }
+  },
+})
+```
+
+The `effect` callback signature:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `data` | `T` | The response data (from cache or network). |
+| `config.cache` | `boolean` | `true` if this data came from IndexedDB cache. |
+| `config.isServer` | `boolean` | `true` if currently executing on the server (SSR). |
+| `config.params` | `object` | Route params used for this request. |
+| `config.query` | `object` | Query parameters used for this request. |
+
+### Re-fetching with `fetch` & `useCache`
+
+The `fetch` method returned by `useHttp` allows you to re-request data with new parameters. It accepts an object with two fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `options` | `RequestOptions` | New `query`, `params`, and other fetch options for this request. |
+| `useCache` | `boolean` | If `true`, check IndexedDB cache first before making a network request. |
+
+> **Important:** `fetch()` always returns **fresh data from the network** as its `Promise` result. However, when `useCache: true` is set, the composable will **first** update `data` with the cached value (and fire `effect` with `config.cache = true`), and **then** make a network request to get fresh data (firing `effect` again with `config.cache = false`). This is the stale-while-revalidate pattern.
+>
+> Because of this two-step flow, if you need to react to both cached and fresh data (e.g., for tracking load times), **use the `effect` callback** — not the `await` result of `fetch()`.
+
+**Pagination example** — switching pages without remounting the component:
+
+```typescript
+const cacheElapsed = ref<number | null>(null)
+const networkElapsed = ref<number | null>(null)
+let startTime = Date.now()
+
+const { data, fetch: refetch } = useHttp('GET: /api/todos', {
+  cache: true,
+  ttl: 30000,
+  initOptions: { query: { _start: 0, _limit: 10 } },
+  effect(data, config) {
+    if (config.cache) {
+      cacheElapsed.value = Date.now() - startTime   // ⚡ Instant
+    } else {
+      networkElapsed.value = Date.now() - startTime  // 🌐 After network
+    }
+  },
+})
+
+// When the user clicks "Next Page":
+async function goToPage(page: number) {
+  startTime = Date.now()
+  cacheElapsed.value = null
+  networkElapsed.value = null
+
+  await refetch({
+    useCache: true,  // 1) Show cached page instantly  2) Update from network
+    options: {
+      query: { _start: (page - 1) * 10, _limit: 10 },
+    },
+  })
+}
+
+// Without cache (always wait for network):
+await refetch({
+  options: { query: { _start: 20, _limit: 10 } },
+})
+```
+
 ## Global Settings & Interceptors
 
 You can configure global settings for all your requests using `initAweasomeHttp`. This is especially useful for setting base URLs, adding authentication tokens, or globally handling errors (e.g., 401 Unauthorized redirects).

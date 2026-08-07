@@ -21,7 +21,7 @@
     </span>
 
     <span
-      v-if="props.lazy && !todos && !isLoading && !isCacheLoading && !error"
+      v-if="props.lazy && !data && !isLoading && !isCacheLoading && !error"
       class="status-chip inactive"
     >
       <span class="dot" /> {{ t('statusWait') }}
@@ -32,8 +32,8 @@
     </span>
   </div>
 
-  <div v-if="todos && !showSkeleton" class="todo-list">
-    <div v-for="todo in todos" :key="todo.id" class="todo-item">
+  <div v-if="data && !showSkeleton" class="todo-list">
+    <div v-for="todo in data" :key="todo.id" class="todo-item">
       <div class="todo-check" :class="{ done: todo.completed }">
         <svg viewBox="0 0 24 24">
           <polyline points="20 6 9 17 4 12" />
@@ -112,7 +112,6 @@ watchEffect(() => {
 let setupTime = props.lazy ? 0 : Date.now()
 const cacheElapsed = ref<number | null>(null)
 const networkElapsed = ref<number | null>(null)
-
 const gotCacheData = ref(false)
 const ssrRendered = ref(false)
 
@@ -127,7 +126,7 @@ const {
   ssr: props.ssr,
   cache: props.cache,
   lazy: props.lazy,
-  ttl: 30000,
+  ttl: 3600000,
   initOptions: {
     query: {
       _start: (props.page - 1) * 5,
@@ -141,22 +140,22 @@ const {
         cacheElapsed.value = Date.now() - setupTime
       }
     }
+    if (config.isServer) {
+      ssrRendered.value = true
+    }
   },
 })
 
-const todos = computed(
-  () => data.value as unknown as Todo[] | null,
-)
-
 const showSkeleton = computed(() => {
-  if (gotCacheData.value && todos.value) return false
-  if (props.ssr && todos.value) return false
+  if (gotCacheData.value && data.value) return false
+  if (ssrRendered.value && data.value) return false
   if (props.lazy && !isLoading.value && !isCacheLoading.value) return false
   
   if (isLoading.value || isCacheLoading.value) return true
-  if (!todos.value) return true
+  if (!data.value) return true
   return false
 })
+
 
 watch(isFreshData, (val) => {
   if (val && networkElapsed.value === null) {
@@ -165,7 +164,7 @@ watch(isFreshData, (val) => {
 })
 
 onMounted(() => {
-  if (props.ssr && todos.value && !isLoading.value) {
+  if (props.ssr && data.value && !isLoading.value) {
     ssrRendered.value = true
     networkElapsed.value = Date.now() - setupTime
   }
@@ -175,20 +174,28 @@ onMounted(() => {
   }
 })
 
-async function triggerFetch() {
+async function triggerFetch(page?: number) {
   setupTime = Date.now()
   cacheElapsed.value = null
   networkElapsed.value = null
   gotCacheData.value = false
   ssrRendered.value = false
+  isFreshData.value = false
 
   return refetch({
-    query: {
-      _start: (props.page - 1) * 5,
-      _limit: 5,
+    useCache: true,
+    options: {
+      query: {
+        _start: ((page ?? props.page) - 1) * 5,
+        _limit: 5,
+      },
     },
   })
 }
+
+watch(() => props.page, (newPage) => {
+  triggerFetch(newPage)
+})
 
 function clearData() {
   data.value = null

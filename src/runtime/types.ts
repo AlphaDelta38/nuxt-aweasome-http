@@ -29,5 +29,5 @@ export interface ComposableResponse<path extends string> {
   isCacheLoading: Ref<boolean>
   isFreshData: Ref<boolean>
   error: Ref<unknown | null>
-  fetch: (options?: RequestOptions<path>) => Promise<GetDataFromConvention<path>>
+  fetch: (data?: { options?: RequestOptions<path>, useCache?: boolean }) => Promise<GetDataFromConvention<path>>
 }

@@ -1,7 +1,7 @@
 {
   "name": "nuxt-aweasome-http",
   "description": "Vue 3 & Nuxt composable for typed HTTP requests with SSR support, IndexedDB caching, and global interceptors.",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "license": "MIT",
   "type": "module",
   "private": false,
