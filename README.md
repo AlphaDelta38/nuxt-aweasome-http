@@ -6,6 +6,8 @@
 [![license](https://img.shields.io/npm/l/nuxt-aweasome-http.svg?style=flat-square&color=00DC82)](https://github.com/AlphaDelta38/nuxt-aweasome-http/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/AlphaDelta38/nuxt-aweasome-http?style=flat-square&color=00DC82)](https://github.com/AlphaDelta38/nuxt-aweasome-http)
 
+📋 **[Changelog / Patch Notes](./CHANGELOG.md)**
+
 Vue 3 / Nuxt composable for typed HTTP requests with SSR support, IndexedDB caching, smart loading, and global interceptors.
 
 ## Features
